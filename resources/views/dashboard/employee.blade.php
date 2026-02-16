@@ -1,0 +1,177 @@
+@extends('layouts.app')
+
+@section('title', 'Dashboard Karyawan')
+@section('page-title', 'Dashboard Karyawan')
+
+@section('content')
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+    <!-- Stat Card: Order Hari Ini -->
+    <div class="card">
+        <div class="card-body">
+            <h3 class="text-sm font-semibold text-gray-600 uppercase tracking-wider">Order Hari Ini</h3>
+            <div class="mt-2">
+                <div class="text-3xl font-bold text-gray-900">{{ $todayOrders }}</div>
+                <p class="mt-1 text-sm text-gray-600">Transaksi yang Anda tangani hari ini</p>
+            </div>
+            <div class="mt-4">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-badge text-xs font-medium bg-blue-100 text-blue-800">
+                    <i class="fas fa-chart-bar mr-1"></i> Hari Ini
+                </span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Stat Card: Order Minggu Ini -->
+    <div class="card">
+        <div class="card-body">
+            <h3 class="text-sm font-semibold text-gray-600 uppercase tracking-wider">Order Minggu Ini</h3>
+            <div class="mt-2">
+                <div class="text-3xl font-bold text-gray-900">{{ $weekOrders }}</div>
+                <p class="mt-1 text-sm text-gray-600">Transaksi Anda dalam 7 hari terakhir</p>
+            </div>
+            <div class="mt-4">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-badge text-xs font-medium bg-green-100 text-green-800">
+                    <i class="fas fa-chart-line mr-1"></i> Minggu Ini
+                </span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Stat Card: Omset Minggu Ini -->
+    <div class="card">
+        <div class="card-body">
+            <h3 class="text-sm font-semibold text-gray-600 uppercase tracking-wider">Omset Minggu Ini</h3>
+            <div class="mt-2">
+                <div class="text-3xl font-bold text-gray-900">Rp {{ number_format($weekRevenue, 0, ',', '.') }}</div>
+                <p class="mt-1 text-sm text-gray-600">Total pendapatan dari transaksi Anda</p>
+            </div>
+            <div class="mt-4">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-badge text-xs font-medium bg-purple-100 text-purple-800">
+                    <i class="fas fa-money-bill-wave mr-1"></i> Revenue
+                </span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+    <!-- Produk Stok Rendah -->
+    <div class="card">
+        <div class="card-header flex items-center justify-between">
+            <h3 class="text-lg font-semibold text-gray-900">Produk Stok Rendah</h3>
+            <a href="{{ route('products.index') }}" class="btn btn-primary text-sm">
+                Lihat Semua Produk
+            </a>
+        </div>
+        <div class="card-body">
+            @if($lowStockProducts->count() > 0)
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Nama Produk</th>
+                            <th>Kategori</th>
+                            <th class="text-right">Stok</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($lowStockProducts as $product)
+                        <tr>
+                            <td>
+                                <div class="font-medium">{{ $product->name }}</div>
+                                <div class="text-sm text-gray-600">{{ $product->type_color ?? '-' }}</div>
+                            </td>
+                            <td>{{ $product->category->name ?? '-' }}</td>
+                            <td class="text-right">
+                                <span class="font-medium {{ $product->stock < 5 ? 'text-red-600' : 'text-yellow-600' }}">
+                                    {{ $product->stock }}
+                                </span>
+                            </td>
+                            <td>
+                                @if($product->stock < 5)
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-badge text-xs font-medium bg-red-100 text-red-800">
+                                    <i class="fas fa-exclamation-triangle mr-1"></i> Kritis
+                                </span>
+                                @else
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-badge text-xs font-medium bg-yellow-100 text-yellow-800">
+                                    <i class="fas fa-exclamation-circle mr-1"></i> Rendah
+                                </span>
+                                @endif
+                            </td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+            @else
+            <div class="text-center py-8 text-gray-600">
+                <div class="text-4xl mb-2"><i class="fas fa-check-circle"></i></div>
+                <p>Semua produk memiliki stok yang cukup.</p>
+            </div>
+            @endif
+        </div>
+    </div>
+    
+    <!-- Transaksi Terbaru -->
+    <div class="card">
+        <div class="card-header flex items-center justify-between">
+            <h3 class="text-lg font-semibold text-gray-900">Transaksi Terbaru</h3>
+            <a href="{{ route('transaction.history') }}" class="btn btn-primary text-sm">
+                Lihat Semua Transaksi
+            </a>
+        </div>
+        <div class="card-body">
+            @if($recentTransactions->count() > 0)
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Invoice ID</th>
+                            <th>Tanggal</th>
+                            <th>Pelanggan</th>
+                            <th class="text-right">Total</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($recentTransactions as $transaction)
+                        <tr>
+                            <td class="font-medium">{{ $transaction->invoice_id }}</td>
+                            <td>{{ $transaction->created_at->format('d/m/Y H:i') }}</td>
+                            <td>
+                                <div class="font-medium">{{ $transaction->customer_name ?? 'Pelanggan Umum' }}</div>
+                                <div class="text-sm text-gray-600">{{ ucfirst($transaction->customer_type) }}</div>
+                            </td>
+                            <td class="text-right font-medium text-green-600">Rp {{ number_format($transaction->total_amount, 0, ',', '.') }}</td>
+                            <td>
+                                @if($transaction->status === 'paid')
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-badge text-xs font-medium bg-green-100 text-green-800">
+                                    <i class="fas fa-check-circle mr-1"></i> Lunas
+                                </span>
+                                @elseif($transaction->status === 'pending')
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-badge text-xs font-medium bg-yellow-100 text-yellow-800">
+                                    <i class="fas fa-clock mr-1"></i> Pending
+                                </span>
+                                @else
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-badge text-xs font-medium bg-red-100 text-red-800">
+                                    <i class="fas fa-times-circle mr-1"></i> Dibatalkan
+                                </span>
+                                @endif
+                            </td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+            @else
+            <div class="text-center py-8 text-gray-600">
+                <div class="text-4xl mb-2"><i class="fas fa-shopping-cart"></i></div>
+                <p>Belum ada transaksi.</p>
+            </div>
+            @endif
+        </div>
+    </div>
+</div>
+
+@endsection

@@ -1,0 +1,100 @@
+<IfModule mod_rewrite.c>
+    <IfModule mod_negotiation.c>
+        Options -MultiViews -Indexes
+    </IfModule>
+
+    RewriteEngine On
+
+    # Security Headers
+    <IfModule mod_headers.c>
+        # Prevent clickjacking
+        Header always append X-Frame-Options SAMEORIGIN
+        
+        # Enable XSS protection
+        Header set X-XSS-Protection "1; mode=block"
+        
+        # Prevent MIME type sniffing
+        Header set X-Content-Type-Options nosniff
+        
+        # Referrer Policy
+        Header set Referrer-Policy "strict-origin-when-cross-origin"
+        
+        # Content Security Policy (CSP) - Basic
+        Header set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self';"
+        
+        # HSTS (HTTP Strict Transport Security)
+        Header set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+    </IfModule>
+
+    # Block access to sensitive files and directories
+    <FilesMatch "^\.">
+        Order allow,deny
+        Deny from all
+    </FilesMatch>
+    
+    <FilesMatch "\.(env|log|ini|conf|sql|bak|backup|git|svn|swp|swo)$">
+        Order allow,deny
+        Deny from all
+    </FilesMatch>
+    
+    # Block access to specific directories
+    RedirectMatch 403 ^/app/.*$
+    RedirectMatch 403 ^/bootstrap/.*$
+    RedirectMatch 403 ^/config/.*$
+    RedirectMatch 403 ^/database/.*$
+    RedirectMatch 403 ^/resources/.*$
+    RedirectMatch 403 ^/routes/.*$
+    RedirectMatch 403 ^/storage/.*$
+    RedirectMatch 403 ^/tests/.*$
+    RedirectMatch 403 ^/vendor/.*$
+
+    # Handle Authorization Header
+    RewriteCond %{HTTP:Authorization} .
+    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
+    # Handle X-XSRF-Token Header
+    RewriteCond %{HTTP:x-xsrf-token} .
+    RewriteRule .* - [E=HTTP_X_XSRF_TOKEN:%{HTTP:X-XSRF-Token}]
+
+    # Redirect Trailing Slashes If Not A Folder...
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_URI} (.+)/$
+    RewriteRule ^ %1 [L,R=301]
+
+    # Send Requests To Front Controller...
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule ^ index.php [L]
+    
+    # Block PHP execution in uploads directory
+    <IfModule mod_php.c>
+        php_flag engine off
+    </IfModule>
+    
+    # Prevent directory listing
+    Options -Indexes
+    
+    # Protect against hotlinking
+    RewriteCond %{HTTP_REFERER} !^$
+    RewriteCond %{HTTP_REFERER} !^http(s)?://(www\.)?localhost [NC]
+    RewriteCond %{HTTP_REFERER} !^http(s)?://(www\.)?127\.0\.0\.1 [NC]
+    RewriteRule \.(jpg|jpeg|png|gif|css|js)$ - [NC,F,L]
+</IfModule>
+
+# Compression
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css text/javascript application/javascript application/x-javascript application/json
+</IfModule>
+
+# Cache Control
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType image/jpg "access plus 1 year"
+    ExpiresByType image/jpeg "access plus 1 year"
+    ExpiresByType image/gif "access plus 1 year"
+    ExpiresByType image/png "access plus 1 year"
+    ExpiresByType text/css "access plus 1 month"
+    ExpiresByType application/javascript "access plus 1 month"
+    ExpiresByType application/x-javascript "access plus 1 month"
+    ExpiresByType text/javascript "access plus 1 month"
+</IfModule>

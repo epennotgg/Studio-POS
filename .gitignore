@@ -1,0 +1,98 @@
+# Laravel & PHP
+*.log
+.env
+.env.*.local
+.env.local
+.env.production
+.phpunit.result.cache
+.phpunit.cache
+.php-cs-fixer.cache
+composer.phar
+/vendor/
+/node_modules/
+/public/build/
+/public/hot
+/public/storage
+/storage/*.key
+/storage/pail
+/storage/logs/*.log
+/storage/framework/cache/data/*
+/storage/framework/sessions/*
+/storage/framework/views/*
+
+# Development tools
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+.fleet/
+.nova/
+.zed/
+.phpactor.json
+.php-cs-fixer.php
+
+# Composer
+composer.lock
+/vendor/
+/auth.json
+
+# Node/NPM
+package-lock.json
+yarn.lock
+/node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Testing
+.phpunit.result.cache
+.phpunit.cache
+/coverage/
+
+# Deployment
+Homestead.json
+Homestead.yaml
+Vagrantfile
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE files
+*.swp
+*.swo
+*~
+.idea/
+.vscode/
+*.code-workspace
+
+# Laravel specific
+bootstrap/cache/*
+!.gitignore
+
+# Session files
+/storage/framework/sessions/*
+
+# Cache files
+/storage/framework/cache/*
+
+# View compiled Blade files
+/storage/framework/views/*
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Backup files
+*.backup
+*.bak
+
+# Log files
+*.log
+logs/

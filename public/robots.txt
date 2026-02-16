@@ -1,0 +1,56 @@
+# robots.txt for blablablableblebleblublublu
+# Last updated: 2026
+
+# Asli dah ini bikinan vibecoder gaada yang bener anyink
+
+User-agent: *
+Disallow: /admin/
+Disallow: /dashboard/
+Disallow: /kasir/
+Disallow: /transaksi/
+Disallow: /products/
+Disallow: /karyawan/
+Disallow: /booking/
+Disallow: /pengaturan/
+Disallow: /api/
+Disallow: /storage/
+Disallow: /vendor/
+Disallow: /app/
+Disallow: /bootstrap/
+Disallow: /config/
+Disallow: /database/
+Disallow: /resources/
+Disallow: /routes/
+Disallow: /tests/
+
+# Allow indexing of public assets
+Allow: /css/
+Allow: /js/
+Allow: /images/
+Allow: /fonts/
+
+# Sitemap (if available)
+# Sitemap: https://your-domain.com/sitemap.xml
+
+# Crawl delay to prevent server overload
+Crawl-delay: 10
+
+# Security: Block specific bots
+User-agent: AhrefsBot
+Disallow: /
+
+User-agent: SemrushBot
+Disallow: /
+
+User-agent: MJ12bot
+Disallow: /
+
+User-agent: DotBot
+Disallow: /
+
+User-agent: MegaIndex.ru
+Disallow: /
+
+# Development/Staging environments should block all
+User-agent: *
+Disallow: /
