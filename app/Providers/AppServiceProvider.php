@@ -27,7 +27,7 @@ class AppServiceProvider extends ServiceProvider
         $router = $this->app['router'];
         $router->aliasMiddleware('ratelimit', RateLimitMiddleware::class);
         $router->aliasMiddleware('admin', AdminMiddleware::class);
-        $router->aliasMiddleware('force.https', ForceHttpsMiddleware::class);
+        // $router->aliasMiddleware('force.https', ForceHttpsMiddleware::class);
         $router->aliasMiddleware('security.headers', SecurityHeadersMiddleware::class);
     }
 }

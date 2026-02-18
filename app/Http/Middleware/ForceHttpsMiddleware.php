@@ -17,8 +17,11 @@ class ForceHttpsMiddleware
      */
     public function handle(Request $request, Closure $next)
     {
-        // Only force HTTPS in production environment when SSL is available
-        if (App::environment('production') && !$request->secure() && $this->hasSsl()) {
+        // Check if HTTPS forcing is enabled in environment
+        $forceHttps = env('FORCE_HTTPS', false);
+        
+        // Only force HTTPS if enabled in environment, in production, and SSL is available
+        if ($forceHttps && App::environment('production') && !$request->secure() && $this->hasSsl()) {
             return redirect()->secure($request->getRequestUri());
         }
 
