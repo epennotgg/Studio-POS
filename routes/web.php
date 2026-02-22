@@ -55,6 +55,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/transaksi/riwayat', [TransactionController::class, 'history'])->name('transaction.history');
     Route::get('/transaksi/riwayat/export', [TransactionController::class, 'export'])->name('transaction.export');
     Route::post('/transaksi/{transaction}/cancel', [TransactionController::class, 'cancel'])->name('transaction.cancel');
+    Route::post('/transaksi/{transaction}/mark-as-paid', [TransactionController::class, 'markAsPaid'])->name('transaction.markAsPaid');
     
     // Pengaturan
     Route::get('/pengaturan', [SettingsController::class, 'index'])->name('settings.index');

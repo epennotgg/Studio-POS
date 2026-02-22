@@ -17,6 +17,14 @@ class ForceHttpsMiddleware
      */
     public function handle(Request $request, Closure $next)
     {
+        // Check if Cloudflare Tunnel is being used
+        $isCloudflareTunnel = env('CLOUDFLARE_TUNNEL', false);
+        
+        // If using Cloudflare Tunnel, skip HTTPS forcing
+        if ($isCloudflareTunnel) {
+            return $next($request);
+        }
+        
         // Check if HTTPS forcing is enabled in environment
         $forceHttps = env('FORCE_HTTPS', false);
         

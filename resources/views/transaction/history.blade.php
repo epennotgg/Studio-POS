@@ -10,149 +10,14 @@
 @endsection
 
 @section('content')
-<style>
-    /* Pagination styles */
-    .pagination {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        gap: 8px;
-        margin-top: 24px;
-        padding: 16px 0;
-    }
-    
-    .pagination .page-item {
-        list-style: none;
-    }
-    
-    .pagination .page-link {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        min-width: 40px;
-        height: 40px;
-        padding: 0 12px;
-        border: 1px solid #e5e7eb;
-        border-radius: 6px;
-        background-color: white;
-        color: #374151;
-        font-size: 14px;
-        font-weight: 500;
-        text-decoration: none;
-        transition: all 0.2s ease;
-    }
-    
-    .pagination .page-link:hover {
-        background-color: #f3f4f6;
-        border-color: #d1d5db;
-    }
-    
-    .pagination .page-item.active .page-link {
-        background-color: #3b82f6;
-        border-color: #3b82f6;
-        color: white;
-    }
-    
-    .pagination .page-item.disabled .page-link {
-        background-color: #f9fafb;
-        border-color: #e5e7eb;
-        color: #9ca3af;
-        cursor: not-allowed;
-    }
-    
-    .pagination .page-item:first-child .page-link,
-    .pagination .page-item:last-child .page-link {
-        min-width: 80px;
-    }
-    
-    /* SVG styling for pagination icons */
-    .pagination svg {
-        width: 1.25rem;
-        height: 1.25rem;
-        fill: currentColor;
-    }
-    
-    .pagination .page-link svg {
-        vertical-align: middle;
-    }
-    
-    /* Simple CSS for Laravel pagination - override default Tailwind */
-    .pagination > div {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        align-items: center;
-        gap: 8px;
-        margin-top: 24px;
-        padding: 16px 0;
-    }
-    
-    .pagination > div > div {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-    }
-    
-    .pagination span[aria-disabled="true"] span,
-    .pagination span[aria-current="page"] span,
-    .pagination a {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        min-width: 40px;
-        height: 40px;
-        padding: 0 12px;
-        border: 1px solid #e5e7eb;
-        border-radius: 6px;
-        background-color: white;
-        color: #374151;
-        font-size: 14px;
-        font-weight: 500;
-        text-decoration: none;
-        transition: all 0.2s ease;
-    }
-    
-    .pagination a:hover {
-        background-color: #f3f4f6;
-        border-color: #d1d5db;
-    }
-    
-    .pagination span[aria-current="page"] span {
-        background-color: #3b82f6;
-        border-color: #3b82f6;
-        color: white;
-    }
-    
-    .pagination span[aria-disabled="true"] span {
-        background-color: #f9fafb;
-        border-color: #e5e7eb;
-        color: #9ca3af;
-        cursor: not-allowed;
-    }
-    
-    .pagination svg {
-        width: 1.25rem;
-        height: 1.25rem;
-        fill: currentColor;
-    }
-    
-    /* Fix untuk icon pagination yang terlalu besar */
-    nav[role="navigation"] svg {
-        width: 20px;
-        height: 20px;
-    }
-    
-    /* Sembunyikan tombol Previous/Next text yang duplikat */
-    nav[role="navigation"] > div:first-child {
-        display: none;
-    }
-</style>
-
 <div class="card mb-6">
-    <div class="card-header">
+    <div class="card-header flex items-center justify-between">
         <h3 class="text-lg font-semibold text-gray-900">Filter Transaksi</h3>
+        <button type="button" class="btn btn-secondary" id="toggleFilterBtn" onclick="toggleFilter()">
+            <i class="fas fa-chevron-up mr-1"></i> <span id="filterToggleText">Sembunyikan Filter</span>
+        </button>
     </div>
-    <div class="card-body">
+    <div class="card-body" id="filterFormContainer">
         <form method="GET" action="{{ route('transaction.history') }}" id="filterForm">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
                 <div class="form-group">
@@ -199,7 +64,7 @@
 </div>
 
 @if(Auth::user()->role === 'admin')
-<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+<div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
     <div class="card">
         <div class="card-body">
             <h3 class="text-sm font-semibold text-gray-600 uppercase tracking-wider">Total Transaksi</h3>
@@ -226,6 +91,169 @@
             <div class="mt-2">
                 <div class="text-3xl font-bold text-gray-900">Rp {{ number_format($averageTransaction ?? $transactions->avg('total_amount') ?? 0, 0, ',', '.') }}</div>
                 <p class="mt-1 text-sm text-gray-600">Rata-rata nilai transaksi</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="card-body">
+            <h3 class="text-sm font-semibold text-gray-600 uppercase tracking-wider">Transaksi Pending</h3>
+            <div class="mt-2">
+                <div class="text-3xl font-bold text-yellow-600">{{ $pendingTransactionsCount ?? 0 }}</div>
+                <p class="mt-1 text-sm text-gray-600">Menunggu pembayaran lunas</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Omset Section -->
+<div class="card mb-6">
+    <div class="card-header">
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Statistik Omset</h3>
+    </div>
+    <div class="card-body">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- Omset 7 Hari Terakhir -->
+            <div class="bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 rounded-lg p-6 border border-blue-200 dark:border-blue-700/30">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-sm font-semibold text-blue-800 dark:text-blue-300 uppercase tracking-wider">Omset 7 Hari</h3>
+                        <div class="mt-2">
+                            <div class="text-3xl font-bold text-blue-900 dark:text-blue-200">Rp {{ number_format($weeklyRevenue ?? 0, 0, ',', '.') }}</div>
+                            <p class="mt-1 text-sm text-blue-700 dark:text-blue-300">
+                                {{ $weeklyStartDate ?? 'Hari ini' }} - {{ $weeklyEndDate ?? '7 hari lalu' }}
+                            </p>
+                        </div>
+                    </div>
+                    <div class="text-blue-500 dark:text-blue-400">
+                        <i class="fas fa-calendar-week text-3xl"></i>
+                    </div>
+                </div>
+                <div class="mt-4 text-sm text-blue-700 dark:text-blue-300">
+                    <div class="flex justify-between">
+                        <span class="dark:text-blue-200">Transaksi:</span>
+                        <span class="font-semibold dark:text-blue-100">{{ $weeklyTransactionCount ?? 0 }}</span>
+                    </div>
+                    <div class="flex justify-between mt-1">
+                        <span class="dark:text-blue-200">Rata-rata:</span>
+                        <span class="font-semibold dark:text-blue-100">Rp {{ number_format($weeklyAverage ?? 0, 0, ',', '.') }}</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Omset Bulan Ini (1-31) -->
+            <div class="bg-gradient-to-r from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 rounded-lg p-6 border border-green-200 dark:border-green-700/30">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-sm font-semibold text-green-800 dark:text-green-300 uppercase tracking-wider">Omset Bulan Ini</h3>
+                        <div class="mt-2">
+                            <div class="text-3xl font-bold text-green-900 dark:text-green-200">Rp {{ number_format($monthlyRevenue ?? 0, 0, ',', '.') }}</div>
+                            <p class="mt-1 text-sm text-green-700 dark:text-green-300">
+                                {{ $monthlyPeriod ?? '1' }} - {{ date('d/m/Y') }}
+                            </p>
+                        </div>
+                    </div>
+                    <div class="text-green-500 dark:text-green-400">
+                        <i class="fas fa-calendar-alt text-3xl"></i>
+                    </div>
+                </div>
+                <div class="mt-4 text-sm text-green-700 dark:text-green-300">
+                    <div class="flex justify-between">
+                        <span class="dark:text-green-200">Transaksi:</span>
+                        <span class="font-semibold dark:text-green-100">{{ $monthlyTransactionCount ?? 0 }}</span>
+                    </div>
+                    <div class="flex justify-between mt-1">
+                        <span class="dark:text-green-200">Rata-rata:</span>
+                        <span class="font-semibold dark:text-green-100">Rp {{ number_format($monthlyAverage ?? 0, 0, ',', '.') }}</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Omset 30 Hari Terakhir -->
+            <div class="bg-gradient-to-r from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 rounded-lg p-6 border border-purple-200 dark:border-purple-700/30">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-sm font-semibold text-purple-800 dark:text-purple-300 uppercase tracking-wider">Omset 30 Hari</h3>
+                        <div class="mt-2">
+                            <div class="text-3xl font-bold text-purple-900 dark:text-purple-200">Rp {{ number_format($last30DaysRevenue ?? 0, 0, ',', '.') }}</div>
+                            <p class="mt-1 text-sm text-purple-700 dark:text-purple-300">
+                                {{ $last30DaysStartDateFormatted ?? 'Hari ini' }} - {{ $last30DaysEndDateFormatted ?? '30 hari lalu' }}
+                            </p>
+                        </div>
+                    </div>
+                    <div class="text-purple-500 dark:text-purple-400">
+                        <i class="fas fa-chart-line text-3xl"></i>
+                    </div>
+                </div>
+                <div class="mt-4 text-sm text-purple-700 dark:text-purple-300">
+                    <div class="flex justify-between">
+                        <span class="dark:text-purple-200">Transaksi:</span>
+                        <span class="font-semibold dark:text-purple-100">{{ $last30DaysTransactionCount ?? 0 }}</span>
+                    </div>
+                    <div class="flex justify-between mt-1">
+                        <span class="dark:text-purple-200">Rata-rata:</span>
+                        <span class="font-semibold dark:text-purple-100">Rp {{ number_format($last30DaysAverage ?? 0, 0, ',', '.') }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Revenue Breakdown -->
+        <div class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
+                <h4 class="text-sm font-semibold mb-2">Breakdown Status</h4>
+                <div class="space-y-2">
+                    <div class="flex justify-between">
+                        <span class="text-sm text-gray-600 dark:text-gray-400">Lunas:</span>
+                        <span class="font-semibold text-green-600 dark:text-green-400">Rp {{ number_format($paidRevenue ?? 0, 0, ',', '.') }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-sm text-gray-600 dark:text-gray-400">Uang DP/Pending:</span>
+                        <span class="font-semibold text-yellow-600 dark:text-yellow-400">Rp {{ number_format($pendingRevenue ?? 0, 0, ',', '.') }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                    <span class="text-sm text-gray-600 dark:text-gray-400">Keuntungan (vs Bulan Lalu):</span>
+                    <span class="font-semibold @if(($dpProfitPercentage ?? 0) >= 0) text-green-600 dark:text-green-400 @else text-red-600 dark:text-red-400 @endif">
+                        @if(($dpProfitPercentage ?? 0) >= 0)+@endif{{ number_format($dpProfitPercentage ?? 0, 1) }}%
+                    </span>
+                </div>
+                </div>
+            </div>
+            
+            <div class="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
+                <h4 class="text-sm font-semibold mb-2">Breakdown Tipe Pelanggan</h4>
+                <div class="space-y-2">
+                    <div class="flex justify-between">
+                        <span class="text-sm text-gray-600 dark:text-gray-400">Umum:</span>
+                        <span class="font-semibold text-blue-600 dark:text-blue-400">Rp {{ number_format($generalRevenue ?? 0, 0, ',', '.') }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-sm text-gray-600 dark:text-gray-400">Agen 1:</span>
+                        <span class="font-semibold text-blue-600 dark:text-blue-400">Rp {{ number_format($agent1Revenue ?? 0, 0, ',', '.') }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-sm text-gray-600 dark:text-gray-400">Agen 2:</span>
+                        <span class="font-semibold text-blue-600 dark:text-blue-400">Rp {{ number_format($agent2Revenue ?? 0, 0, ',', '.') }}</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
+                <h4 class="text-sm font-semibold mb-2">Breakdown Metode Bayar</h4>
+                <div class="space-y-2">
+                    <div class="flex justify-between">
+                        <span class="text-sm text-gray-600 dark:text-gray-400">Tunai:</span>
+                        <span class="font-semibold text-blue-600 dark:text-blue-400">Rp {{ number_format($cashRevenue ?? 0, 0, ',', '.') }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-sm text-gray-600 dark:text-gray-400">Transfer:</span>
+                        <span class="font-semibold text-blue-600 dark:text-blue-400">Rp {{ number_format($transferRevenue ?? 0, 0, ',', '.') }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-sm text-gray-600 dark:text-gray-400">QRIS:</span>
+                        <span class="font-semibold text-blue-600 dark:text-blue-400">Rp {{ number_format($qrisRevenue ?? 0, 0, ',', '.') }}</span>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -332,9 +360,14 @@
                                 <button type="button" class="btn btn-warning text-sm" onclick="viewTransactionDetails({{ $transaction->id }})">
                                     <i class="fas fa-eye mr-1"></i> Detail
                                 </button>
-                                @if($transaction->status === 'paid' && Auth::user()->role === 'admin')
+                                @if($transaction->status === 'paid' && (Auth::user()->role === 'admin' || Auth::id() == $transaction->user_id))
                                 <button type="button" class="btn btn-danger text-sm" onclick="cancelTransaction({{ $transaction->id }})">
                                     <i class="fas fa-times-circle mr-1"></i> Batal
+                                </button>
+                                @endif
+                                @if($transaction->status === 'pending' && (Auth::user()->role === 'admin' || Auth::id() == $transaction->user_id))
+                                <button type="button" class="btn btn-success text-sm" onclick="markAsPaid({{ $transaction->id }})">
+                                    <i class="fas fa-check-circle mr-1"></i> Lunas
                                 </button>
                                 @endif
                             </div>
@@ -471,6 +504,26 @@
         };
     }
     
+    // Validate date range before form submission
+    document.getElementById('filterForm').addEventListener('submit', function(e) {
+        const startDateInput = document.querySelector('input[name="start_date"]');
+        const endDateInput = document.querySelector('input[name="end_date"]');
+        
+        if (startDateInput.value && endDateInput.value) {
+            const startDate = new Date(startDateInput.value);
+            const endDate = new Date(endDateInput.value);
+            
+            if (startDate > endDate) {
+                e.preventDefault();
+                alert('Tanggal mulai tidak boleh melewati tanggal akhir!');
+                startDateInput.focus();
+                return false;
+            }
+        }
+        
+        return true;
+    });
+    
     // Auto-submit form when date inputs change
     document.querySelectorAll('input[type="date"]').forEach(input => {
         input.addEventListener('change', function() {
@@ -552,6 +605,76 @@ async function cancelTransaction(transactionId) {
         alert('Gagal membatalkan transaksi. Silakan coba lagi.');
     }
 }
+
+// Mark transaction as paid
+async function markAsPaid(transactionId) {
+    if (!confirm('Apakah Anda yakin ingin menandai transaksi ini sebagai LUNAS? Status akan berubah dan invoice akan diganti menjadi lunas.')) {
+        return;
+    }
+    
+    try {
+        const response = await fetch(`/transaksi/${transactionId}/mark-as-paid`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            }
+        });
+        
+        const result = await response.json();
+        
+        if (response.ok) {
+            alert('Transaksi berhasil ditandai sebagai LUNAS!');
+            location.reload(); // Reload halaman untuk update data
+        } else {
+            alert('Gagal menandai transaksi sebagai lunas: ' + (result.message || 'Terjadi kesalahan'));
+        }
+    } catch (error) {
+        console.error('Error marking transaction as paid:', error);
+        alert('Gagal menandai transaksi sebagai lunas. Silakan coba lagi.');
+    }
+}
+
+// Toggle filter visibility
+function toggleFilter() {
+    const filterContainer = document.getElementById('filterFormContainer');
+    const toggleBtn = document.getElementById('toggleFilterBtn');
+    const toggleText = document.getElementById('filterToggleText');
+    const icon = toggleBtn.querySelector('i');
+    
+    if (filterContainer.style.display === 'none') {
+        // Show filter
+        filterContainer.style.display = 'block';
+        toggleText.textContent = 'Sembunyikan Filter';
+        icon.className = 'fas fa-chevron-up mr-1';
+    } else {
+        // Hide filter
+        filterContainer.style.display = 'none';
+        toggleText.textContent = 'Tampilkan Filter';
+        icon.className = 'fas fa-chevron-down mr-1';
+    }
+}
+
+// Initialize filter state on page load
+document.addEventListener('DOMContentLoaded', function() {
+    // Check if filter has values to determine initial state
+    const hasFilterValues = document.querySelector('input[name="start_date"]').value || 
+                           document.querySelector('input[name="end_date"]').value ||
+                           document.querySelector('select[name="status"]').value !== 'all' ||
+                           document.querySelector('select[name="customer_type"]').value !== 'all';
+    
+    // If no filter values, hide filter by default for cleaner UI
+    if (!hasFilterValues) {
+        const filterContainer = document.getElementById('filterFormContainer');
+        const toggleBtn = document.getElementById('toggleFilterBtn');
+        const toggleText = document.getElementById('filterToggleText');
+        const icon = toggleBtn.querySelector('i');
+        
+        filterContainer.style.display = 'none';
+        toggleText.textContent = 'Tampilkan Filter';
+        icon.className = 'fas fa-chevron-down mr-1';
+    }
+});
 </script>
 
 @endsection

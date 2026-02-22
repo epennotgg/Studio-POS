@@ -21,4 +21,42 @@ class Product extends Model
     public function category() { return $this->belongsTo(Category::class); }
     
     public function transactionItems() { return $this->hasMany(TransactionItem::class); }
+    
+    /**
+     * Check if this product belongs to a service category (unlimited stock)
+     */
+    public function isServiceProduct()
+    {
+        return $this->category && $this->category->isServiceCategory();
+    }
+    
+    /**
+     * Get display stock for service products
+     */
+    public function getDisplayStockAttribute()
+    {
+        if ($this->isServiceProduct()) {
+            return '∞'; // Infinity symbol for unlimited stock
+        }
+        
+        return $this->stock;
+    }
+    
+    /**
+     * Get stock status class for display
+     */
+    public function getStockStatusClassAttribute()
+    {
+        if ($this->isServiceProduct()) {
+            return 'text-green-600'; // Green for unlimited stock
+        }
+        
+        if ($this->stock <= 5) {
+            return 'text-red-600';
+        } elseif ($this->stock <= 20) {
+            return 'text-yellow-600';
+        } else {
+            return 'text-green-600';
+        }
+    }
 }

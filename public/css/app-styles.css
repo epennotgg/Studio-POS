@@ -1,4 +1,8 @@
-/* Main CSS Styles for Studio Foto POS */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Main CSS Styles for Studio Foto POS (will be overwritten) */
 * {
     margin: 0;
     padding: 0;

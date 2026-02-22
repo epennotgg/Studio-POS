@@ -252,47 +252,4 @@
     </div>
 </div>
 
-<style>
-    .grid {
-        display: grid;
-    }
-    
-    .grid-cols-1 {
-        grid-template-columns: repeat(1, minmax(0, 1fr));
-    }
-    
-    @media (min-width: 768px) {
-        .md\:grid-cols-3 {
-            grid-template-columns: repeat(3, minmax(0, 1fr));
-        }
-    }
-    
-    @media (min-width: 1024px) {
-        .lg\:grid-cols-2 {
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-        }
-    }
-    
-    .gap-6 {
-        gap: 1.5rem;
-    }
-    
-    .space-y-4 > * + * {
-        margin-top: 1rem;
-    }
-    
-    .text-3xl {
-        font-size: 1.875rem;
-        line-height: 2.25rem;
-    }
-    
-    .text-4xl {
-        font-size: 2.25rem;
-        line-height: 2.5rem;
-    }
-    
-    .tracking-wider {
-        letter-spacing: 0.05em;
-    }
-</style>
 @endsection

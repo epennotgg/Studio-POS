@@ -48,6 +48,22 @@
                 </div>
             </div>
             
+            <!-- DP/Pending Transaction Section -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <div class="form-group">
+                    <div class="flex items-center">
+                        <input type="checkbox" id="is_dp" name="is_dp" value="1" class="mr-2" onchange="toggleDPField()">
+                        <label for="is_dp" class="form-label mb-0">Tandai sebagai DP (Down Payment)</label>
+                    </div>
+                </div>
+                
+                <div class="form-group" id="dp_amount_group" style="display: none;">
+                    <label class="form-label">Jumlah DP</label>
+                    <input type="number" id="down_payment" name="down_payment" class="form-control" min="0" placeholder="Masukkan jumlah DP">
+                    <div class="text-sm text-gray-600 mt-1" id="dp_info"></div>
+                </div>
+            </div>
+            
             <hr class="mb-6">
             
             <!-- Keranjang Belanja -->
@@ -159,6 +175,7 @@
     </div>
 </div>
 
+<!--
 <style>
     .grid {
         display: grid;
@@ -243,7 +260,160 @@
         margin-left: 4px;
         margin-right: 4px;
     }
+    
+    /* Styles for DP checkbox */
+    #is_dp {
+        width: 20px;
+        height: 20px;
+        margin-right: 10px;
+        vertical-align: middle;
+        cursor: pointer;
+    }
+    
+    #is_dp + label {
+        cursor: pointer;
+        vertical-align: middle;
+        font-size: 16px;
+        font-weight: 500;
+        color: #374151;
+    }
+    
+    #is_dp:checked {
+        accent-color: #3b82f6;
+    }
+    
+    /* DP amount input styling */
+    #down_payment {
+        font-size: 16px;
+        padding: 10px;
+        border: 2px solid #d1d5db;
+        border-radius: 6px;
+        transition: border-color 0.2s ease;
+        background-color: white;
+        color: #374151;
+    }
+    
+    #down_payment:focus {
+        border-color: #3b82f6;
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+    
+    #dp_info {
+        font-size: 14px;
+        line-height: 1.5;
+        padding: 8px;
+        background-color: #f9fafb;
+        border-radius: 4px;
+        border-left: 3px solid #3b82f6;
+        color: #374151;
+    }
+    
+    /* Dark mode support for DP elements */
+    .dark-mode #is_dp + label {
+        color: #e5e7eb;
+    }
+    
+    .dark-mode #down_payment {
+        background-color: #374151;
+        border-color: #4b5563;
+        color: #e5e7eb;
+    }
+    
+    .dark-mode #down_payment:focus {
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+    }
+    
+    .dark-mode #dp_info {
+        background-color: #374151;
+        color: #e5e7eb;
+        border-left-color: #3b82f6;
+    }
+    
+    .dark-mode #is_dp:checked {
+        accent-color: #60a5fa;
+    }
+    
+    /* Dark mode support for popular products */
+    .dark-mode #popularProductsGrid > div {
+        background-color: #374151;
+    }
+    
+    .dark-mode #popularProductsGrid > div:hover {
+        background-color: #4b5563;
+    }
+    
+    .dark-mode .popular-product-name {
+        color: #e5e7eb;
+    }
+    
+    .dark-mode .product-type {
+        color: #9ca3af;
+    }
+    
+    .dark-mode .popular-product-price {
+        color: #60a5fa;
+    }
+    
+    .dark-mode .popular-product-stock {
+        color: #9ca3af;
+    }
+    
+    /* Dark mode support for search results */
+    .dark-mode #searchResults > div {
+        background-color: #374151;
+        color: #e5e7eb;
+    }
+    
+    .dark-mode #searchResults > div:hover {
+        background-color: #4b5563;
+    }
+    
+    .dark-mode #searchResults > div .text-gray-600 {
+        color: #9ca3af;
+    }
+    
+    /* Dark mode support for form elements */
+    .dark-mode .form-control {
+        background-color: #374151;
+        border-color: #4b5563;
+        color: #e5e7eb;
+    }
+    
+    .dark-mode .form-control:focus {
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+    }
+    
+    .dark-mode .form-label {
+        color: #e5e7eb;
+    }
+    
+    .dark-mode .text-gray-600 {
+        color: #9ca3af !important;
+    }
+    
+    /* Dark mode support for table */
+    .dark-mode .table {
+        color: #e5e7eb;
+    }
+    
+    .dark-mode .table thead th {
+        background-color: #374151;
+        border-color: #4b5563;
+        color: #e5e7eb;
+    }
+    
+    .dark-mode .table tbody td {
+        border-color: #4b5563;
+    }
+    
+    .dark-mode .table tbody tr:hover {
+        background-color: #4b5563;
+    }
 </style>
+-->
 
 <script>
     let cart = [];
@@ -283,7 +453,7 @@
         });
     }
     
-    // Product search without minimum character limit
+    // Product search without minimum character limit - search by name, type/color, and barcode
     function searchProducts() {
         const searchInput = document.getElementById('productSearchInput');
         const searchTerm = searchInput.value.toLowerCase().trim();
@@ -298,8 +468,19 @@
         }
         
         const filteredProducts = allProducts.filter(product => {
-            return product.name.toLowerCase().includes(searchTerm) || 
-                   (product.type_color && product.type_color.toLowerCase().includes(searchTerm));
+            // Search in name
+            const nameMatch = product.name.toLowerCase().includes(searchTerm);
+            
+            // Search in type/color
+            const typeMatch = product.type_color && product.type_color.toLowerCase().includes(searchTerm);
+            
+            // Search in barcode (exact match or partial)
+            const barcodeMatch = product.barcode && product.barcode.toLowerCase().includes(searchTerm);
+            
+            // Search in barcode with exact match for numeric search
+            const exactBarcodeMatch = product.barcode && product.barcode === searchTerm;
+            
+            return nameMatch || typeMatch || barcodeMatch || exactBarcodeMatch;
         });
         
         if (filteredProducts.length === 0) {
@@ -319,10 +500,25 @@
             };
             productElement.tabIndex = 0;
             
+            // Highlight which field matched
+            let matchInfo = '';
+            if (product.name.toLowerCase().includes(searchTerm)) {
+                matchInfo = 'Nama';
+            } else if (product.type_color && product.type_color.toLowerCase().includes(searchTerm)) {
+                matchInfo = 'Tipe';
+            } else if (product.barcode && (product.barcode.toLowerCase().includes(searchTerm) || product.barcode === searchTerm)) {
+                matchInfo = 'Barcode';
+            }
+            
             productElement.innerHTML = `
                 <div>
                     <div class="font-medium">${product.name}</div>
-                    <div class="text-sm text-gray-600">${product.type_color || ''} • Stok: ${product.stock}</div>
+                    <div class="text-sm text-gray-600">
+                        ${product.type_color || ''} 
+                        ${product.barcode ? `• Barcode: ${product.barcode}` : ''}
+                        • Stok: ${product.stock}
+                        ${matchInfo ? `<span class="text-xs bg-blue-100 text-blue-800 px-1 rounded ml-1">${matchInfo}</span>` : ''}
+                    </div>
                 </div>
                 <div class="text-right">
                     <div class="font-semibold">Rp ${formatNumber(price)}</div>
@@ -331,6 +527,17 @@
             `;
             
             searchResults.appendChild(productElement);
+        });
+        
+        // Auto-select first result if Enter is pressed in search input
+        document.getElementById('productSearchInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                const firstResult = document.querySelector('#searchResults > div');
+                if (firstResult) {
+                    firstResult.click();
+                }
+            }
         });
     }
     
@@ -522,7 +729,95 @@
             e.preventDefault();
             alert("Keranjang belanja masih kosong!");
         }
+        
+        // Validate DP amount if DP is checked
+        const isDP = document.getElementById('is_dp').checked;
+        if (isDP) {
+            const dpAmount = parseFloat(document.getElementById('down_payment').value) || 0;
+            const totalAmount = calculateTotalAmount();
+            
+            if (dpAmount <= 0) {
+                e.preventDefault();
+                alert("Jumlah DP harus lebih dari 0!");
+                return;
+            }
+            
+            if (dpAmount >= totalAmount) {
+                e.preventDefault();
+                alert("Jumlah DP tidak boleh sama atau melebihi total harga!");
+                return;
+            }
+        }
     });
+    
+    // Toggle DP field visibility
+    function toggleDPField() {
+        const isDP = document.getElementById('is_dp').checked;
+        const dpAmountGroup = document.getElementById('dp_amount_group');
+        const dpInput = document.getElementById('down_payment');
+        const dpInfo = document.getElementById('dp_info');
+        
+        if (isDP) {
+            dpAmountGroup.style.display = 'block';
+            const totalAmount = calculateTotalAmount();
+            dpInput.max = totalAmount - 1;
+            dpInput.value = Math.floor(totalAmount * 0.5); // Default 50% of total
+            updateDPInfo();
+        } else {
+            dpAmountGroup.style.display = 'none';
+            dpInput.value = '';
+        }
+    }
+    
+    // Calculate total amount from cart
+    function calculateTotalAmount() {
+        let total = 0;
+        cart.forEach(item => {
+            total += item.subtotal;
+        });
+        return total;
+    }
+    
+    // Update DP info text
+    function updateDPInfo() {
+        const dpAmount = parseFloat(document.getElementById('down_payment').value) || 0;
+        const totalAmount = calculateTotalAmount();
+        const remaining = totalAmount - dpAmount;
+        const dpInfo = document.getElementById('dp_info');
+        
+        dpInfo.innerHTML = `
+            Total: Rp ${formatNumber(totalAmount)}<br>
+            DP: Rp ${formatNumber(dpAmount)}<br>
+            Sisa: Rp ${formatNumber(remaining)}
+        `;
+    }
+    
+    // Update DP info when DP amount changes
+    document.getElementById('down_payment')?.addEventListener('input', function() {
+        updateDPInfo();
+    });
+    
+    // Update DP info when cart changes
+    function updateDPInfoOnCartChange() {
+        if (document.getElementById('is_dp').checked) {
+            updateDPInfo();
+            const totalAmount = calculateTotalAmount();
+            const dpInput = document.getElementById('down_payment');
+            const currentDP = parseFloat(dpInput.value) || 0;
+            
+            if (currentDP > totalAmount) {
+                dpInput.value = Math.floor(totalAmount * 0.5);
+            }
+            dpInput.max = totalAmount - 1;
+        }
+    }
+    
+    // Override renderCart to update DP info
+    const originalRenderCart = renderCart;
+    renderCart = function() {
+        originalRenderCart();
+        updateDPInfoOnCartChange();
+    };
     
     // Initialize
     document.addEventListener('DOMContentLoaded', function() {

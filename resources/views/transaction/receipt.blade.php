@@ -4,11 +4,25 @@
     <title>Struk #{{ $transaction->invoice_id }}</title>
     <style>
         body {
-            font-family: 'Courier New', Courier, monospace; /* Font seperti mesin kasir */
-            font-size: 12px;
-            width: 58mm; /* Lebar kertas thermal standar 58mm */
+            font-family: 'Arial', 'Helvetica', sans-serif;
+            font-size: 14px;
+            width: 58mm;
             margin: 0;
-            padding: 5px;
+            padding: 8px;
+            background: white;
+            line-height: 1.4;
+        }
+        
+        strong {
+            font-size: 15px;
+        }
+        
+        .text-center strong {
+            font-size: 16px;
+        }
+        
+        .text-right strong {
+            font-size: 15px;
         }
         .text-center { text-align: center; }
         .text-right { text-align: right; }
@@ -65,7 +79,15 @@
     <div class="line"></div>
 
     <div class="text-right">
-        <strong>Total: Rp {{ number_format($transaction->total_amount, 0, ',', '.') }}</strong><br>
+        @if($transaction->status == 'pending')
+            <strong>Subtotal: Rp {{ number_format($transaction->total_amount, 0, ',', '.') }}</strong><br>
+            <strong>DP: Rp {{ number_format($transaction->down_payment, 0, ',', '.') }}</strong><br>
+            <strong>Sisa: Rp {{ number_format($transaction->remaining_amount, 0, ',', '.') }}</strong><br>
+            <strong>Status: PENDING</strong><br>
+        @else
+            <strong>Total: Rp {{ number_format($transaction->total_amount, 0, ',', '.') }}</strong><br>
+            <strong>Status: LUNAS</strong><br>
+        @endif
         Metode: {{ $transaction->payment_method }}
     </div>
 

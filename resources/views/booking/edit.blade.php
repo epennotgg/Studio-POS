@@ -151,6 +151,10 @@
 
 @push('scripts')
 <script>
+    // Deklarasi packages menggunakan window object untuk menghindari error
+    window.packages = @json($packages);
+    
+    var selectedCategory = "{{ old('studio_category', $booking->studio_category) }}";
     // Simple JavaScript untuk handle perubahan kategori studio
     document.getElementById('studio_category').addEventListener('change', function() {
         var category = this.value;
@@ -158,9 +162,16 @@
         var customPriceInput = document.getElementById('custom_price');
         
         // Reset package select
-        packageSelect.innerHTML = '<option value="">Pilih Paket</option>';
+        packageSelect.innerHTML = '<option value="">Pilih Kategori Studio terlebih dahulu</option>';
         
-        // Enable/disable custom price input
+        if (category && window.packages[category]) {
+            window.packages[category].forEach(package => {
+                const option = document.createElement('option');
+                option.value = package;
+                option.textContent = package;
+                packageSelect.appendChild(option);
+            });
+        }
         if (category === 'custom') {
             customPriceInput.disabled = false;
             customPriceInput.required = true;
@@ -169,6 +180,20 @@
             customPriceInput.required = false;
             customPriceInput.value = '';
         }
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const categorySelect = document.getElementById('studio_category');
+        
+        // Set selected value saat halaman diload
+        categorySelect.value = selectedCategory;
+        
+        // Trigger change event untuk mengisi paket saat halaman diload
+        categorySelect.dispatchEvent(new Event('change'));
+        
+        // Set selected value untuk paket setelah paket diisi
+        const packageSelect = document.getElementById('package_type');
+        packageSelect.value = "{{ old('package_type', $booking->package_type) }}";
     });
 </script>
 @endpush
