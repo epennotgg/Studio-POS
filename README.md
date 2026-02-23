@@ -4,6 +4,8 @@
 ![PHP](https://img.shields.io/badge/PHP-8.1+-777BB4?style=for-the-badge&logo=php)
 ![MySQL](https://img.shields.io/badge/MySQL-8.0-4479A1?style=for-the-badge&logo=mysql)
 ![TailwindCSS](https://img.shields.io/badge/TailwindCSS-3.x-06B6D4?style=for-the-badge&logo=tailwindcss)
+[![DOI](https://zenodo.org/badge/1159036367.svg)](https://doi.org/10.5281/zenodo.18742580)
+
 
 Sistem Point of Sale (POS) dan Manajemen Stok untuk studio foto dan percetakan. Aplikasi ini dirancang untuk membantu mengelola transaksi, stok produk, dan laporan keuangan dengan antarmuka yang user-friendly.
 
@@ -23,21 +25,21 @@ Sistem Point of Sale (POS) dan Manajemen Stok untuk studio foto dan percetakan. 
 - PHP 8.1 atau lebih tinggi
 - Composer
 - MySQL 5.7+ atau MariaDB 10.3+
-- Node.js 16+ dan NPM
+- Node.js 16+ dan NPM (opsional)
 
 ### Langkah Instalasi
 
 1. **Clone Repository**
    ```bash
-   git clone [this website]
+   git clone https://github.com/epennotgg/Studio-POS
    cd studio-pos
    ```
 
 2. **Install Dependencies**
    ```bash
    composer install
-   npm install
-   npm run build
+   npm install (opsional)
+   npm run build (opsional)
    ```
 
 3. **Setup Environment**
@@ -50,8 +52,8 @@ Sistem Point of Sale (POS) dan Manajemen Stok untuk studio foto dan percetakan. 
    Edit file `.env` dan sesuaikan konfigurasi database:
    ```env
    DB_CONNECTION=mysql
-   DB_HOST=127.0.0.1
-   DB_PORT=3306
+   DB_HOST=127.0.0.1 (ganti dengan web lain jika menggunakan cloud)
+   DB_PORT=3306 (ganti dengan port lain jika menggunakan cloud)
    DB_DATABASE=studio_pos
    DB_USERNAME=your_username
    DB_PASSWORD=your_password
@@ -69,7 +71,7 @@ Sistem Point of Sale (POS) dan Manajemen Stok untuk studio foto dan percetakan. 
    ```
 
 7. **Akses Aplikasi**
-   - Buka browser dan akses: `http://localhost:8000`
+   - Buka browser dan akses: `http://127.0.0.1:8000`
    - Login default:
      - **Admin**: username: `admin`, PIN: `123456`
      - **Kasir**: username: `kasir`, PIN: `123456`
@@ -175,7 +177,7 @@ Aplikasi ini open-source dibawah lisensi [MIT](LICENSE).
 
 ## 🐛 Reporting Issues
 
-Jika menemukan bug atau masalah keamanan, silakan buka [issue](https://github.com/yourusername/studio-pos/issues) di GitHub.
+Jika menemukan bug atau masalah keamanan, silakan buka [issue](https://github.com/epennotgg/Studio-POS/issues) di GitHub.
 
 ## 📞 Support
 
