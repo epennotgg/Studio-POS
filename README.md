@@ -109,6 +109,63 @@ chown -R www-data:www-data storage bootstrap/cache
 - Setup proper CORS policies jika diperlukan
 - Monitor logs untuk aktivitas mencurigakan
 
+## 🔎 Alur Sistem (Flowchart)
+
+Berikut adalah visualisasi alur kerja utama dari aplikasi Studio POS:
+
+```mermaid
+flowchart TD
+    Start([Mulai]) --> Login[Halaman Login]
+    
+    Login --> Auth{Validasi PIN / Kredensial}
+    Auth -- Gagal --> Login
+    Auth -- Berhasil --> RoleCheck{Cek Role / Hak Akses}
+    
+    RoleCheck -- Admin --> DashAdmin[Dashboard Admin<br>Akses Penuh: Laporan & Notifikasi Stok]
+    RoleCheck -- Kasir --> DashKasir[Dashboard Kasir<br>Akses Terbatas]
+    
+    DashAdmin --> MenuUtama
+    DashKasir -.-> MenuKasir[Menu Kasir Sistem]
+    MenuKasir -.-> ModulPOS
+    MenuKasir -.-> ModulBooking
+    MenuKasir -.-> ModulLaporanKasir[Riwayat Transaksi Kasir]
+    
+    MenuUtama{Pilih Menu}
+    
+    MenuUtama --> ModulPOS[Sistem Kasir / POS]
+    MenuUtama --> ModulStok[Manajemen Stok & Produk]
+    MenuUtama --> ModulBooking[Booking Studio]
+    MenuUtama --> ModulLaporan[Riwayat & Laporan Transaksi]
+    MenuUtama --> ModulUser[Manajemen Karyawan]
+    MenuUtama --> ModulSetting[Pengaturan Aplikasi]
+    
+    ModulPOS --> PilihProduk[Cari & Pilih Produk/Layanan]
+    PilihProduk --> MasukKeranjang[Tambahkan ke Keranjang]
+    MasukKeranjang --> PilihPembayaran[Pilih Metode Pembayaran<br>Cash / Transfer / QRIS]
+    PilihPembayaran --> ProsesBayar[Proses Transaksi & Update Stok]
+    ProsesBayar --> CetakStruk[Cetak Struk / Selesai Transaksi]
+    
+    ModulStok --> KelolaKategori[Kelola Kategori Produk]
+    KelolaKategori --> KelolaProduk[Tambah/Edit/Hapus Produk]
+    KelolaProduk --> UpdateStok[Perbarui Jumlah Stok & Harga Bertingkat]
+    
+    ModulBooking --> CekJadwal[Cek Ketersediaan Jadwal]
+    CekJadwal --> InputReservasi[Input Data Booking Pelanggan]
+    InputReservasi --> KonfirmasiBooking[Konfirmasi Reservasi & Penjadwalan]
+    
+    ModulLaporan --> FilterData[Filter Data Transaksi]
+    FilterData --> ViewLaporan[Lihat Detail Transaksi]
+    ViewLaporan --> ExportExcel[Export Laporan ke Excel]
+    
+    CetakStruk --> Selesai([Selesai])
+    UpdateStok --> Selesai
+    KonfirmasiBooking --> Selesai
+    ExportExcel --> Selesai
+    ModulUser --> Selesai
+    ModulSetting --> Selesai
+    ModulLaporanKasir --> Selesai
+```
+
 ## 📁 Struktur Proyek
 
 ```
