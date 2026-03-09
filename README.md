@@ -1,7 +1,7 @@
 # Studio POS - Stock Management System
 
-![Laravel](https://img.shields.io/badge/Laravel-10.x-FF2D20?style=for-the-badge&logo=laravel)
-![PHP](https://img.shields.io/badge/PHP-8.1+-777BB4?style=for-the-badge&logo=php)
+![Laravel](https://img.shields.io/badge/Laravel-12.x-FF2D20?style=for-the-badge&logo=laravel)
+![PHP](https://img.shields.io/badge/PHP-8.2+-777BB4?style=for-the-badge&logo=php)
 ![MySQL](https://img.shields.io/badge/MySQL-8.0-4479A1?style=for-the-badge&logo=mysql)
 ![TailwindCSS](https://img.shields.io/badge/TailwindCSS-3.x-06B6D4?style=for-the-badge&logo=tailwindcss)
 [![DOI](https://zenodo.org/badge/1159036367.svg)](https://doi.org/10.5281/zenodo.18742580)
@@ -22,7 +22,7 @@ Sistem Point of Sale (POS) dan Manajemen Stok untuk studio foto dan percetakan. 
 ## 🚀 Instalasi Cepat
 
 ### Prasyarat
-- PHP 8.1 atau lebih tinggi
+- PHP 8.2 atau lebih tinggi
 - Composer
 - MySQL 5.7+ atau MariaDB 10.3+
 - Node.js 16+ dan NPM (opsional)
@@ -75,6 +75,35 @@ Sistem Point of Sale (POS) dan Manajemen Stok untuk studio foto dan percetakan. 
    - Login default:
      - **Admin**: username: `admin`, PIN: `123456`
      - **Kasir**: username: `kasir`, PIN: `123456`
+
+## ☁️ Deployment Otomatis (VPS / Self-Hosting)
+
+Jika Anda mendeploy ke VPS atau server fisik tanpa panel, gunakan script optimasi yang sudah disediakan:
+
+1. **Clone & Install**
+   ```bash
+   git clone https://github.com/epennotgg/Studio-POS
+   cd studio-pos
+   composer install --no-dev --optimize-autoloader
+   ```
+
+2. **Inisialisasi Produksi** (Otomatis: .env, Key, Migrate, Seed, Link, Cache)
+   ```bash
+   composer production-init
+   ```
+   *Catatan: Pastikan Anda sudah membuat database kosong dan mengedit `.env` jika diperlukan sebelum langkah ini.*
+
+3. **Build Assets** (Jika menggunakan Vite)
+   ```bash
+   composer build
+   ```
+
+Untuk update aplikasi di kemudian hari, Anda cukup menjalankan:
+```bash
+git pull
+composer install --no-dev
+composer deploy
+```
 
 ## 🔐 Keamanan untuk Production
 
