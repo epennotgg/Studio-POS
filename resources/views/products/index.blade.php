@@ -84,18 +84,7 @@
         </div>
     </div>
     <div class="card-body">
-        @if(session('success'))
-            <div class="alert alert-success">
-                {{ session('success') }}
-            </div>
-        @endif
-        
-        @if(session('error'))
-            <div class="alert alert-danger">
-                {{ session('error') }}
-            </div>
-        @endif
-        
+        @if($products->count() > 0)
         <div class="table-responsive">
             <table class="table" id="productsTable">
                 <thead>
@@ -205,15 +194,21 @@
             </table>
         </div>
         
-        @if($products->isEmpty())
-        <div class="text-center py-8 text-gray-600">
-            Tidak ada produk yang ditemukan. Coba ubah filter pencarian atau tambah produk baru.
-        </div>
-        @endif
-        
         <div class="mt-6 pagination">
             {{ $products->links() }}
         </div>
+        @else
+        <div class="text-center py-8 text-gray-600">
+            <div class="text-4xl mb-2"><i class="fas fa-boxes"></i></div>
+            <p class="text-lg font-medium mb-2">Tidak ada produk yang ditemukan</p>
+            <p class="text-sm">Coba ubah filter pencarian atau tambah produk baru.</p>
+            @if(Auth::user()->role === 'admin')
+            <button type="button" class="btn btn-primary mt-4" onclick="openModal('createProductModal')">
+                <i class="fas fa-plus mr-1"></i> Tambah Produk
+            </button>
+            @endif
+        </div>
+        @endif
     </div>
 </div>
 
@@ -587,231 +582,127 @@
         color: #d1d5db !important;
     }
     
-    /* Pagination styles - Fixed to prevent overflow */
-    .pagination {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        flex-wrap: wrap;
-        gap: 0.5rem;
-        margin-top: 1.5rem;
-        max-width: 100%;
-        overflow: hidden;
+
+
+    /* --- Pagination Fix --- */
+    .pagination nav {
+        display: block !important;
+        width: 100% !important;
     }
-    
-    .pagination > nav {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 0.25rem;
-        max-width: 100%;
+
+    /* Hide the mobile-only div by default on desktop */
+    .pagination .sm\:hidden {
+        display: none !important;
     }
-    
-    .pagination .flex {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 0.25rem;
-        max-width: 100%;
+
+    /* Target the desktop-only container */
+    .pagination .hidden.sm\:flex-1 {
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        width: 100% !important;
+        flex-wrap: wrap !important;
+        gap: 1rem !important;
     }
-    
-    .pagination .hidden {
-        display: none;
+
+    @media (max-width: 640px) {
+        .pagination .sm\:hidden {
+            display: flex !important;
+            justify-content: space-between !important;
+            width: 100% !important;
+        }
+        .pagination .hidden.sm\:flex-1 {
+            display: none !important;
+        }
     }
-    
-    .pagination .items-center {
-        align-items: center;
+
+    /* Style the result text */
+    .pagination p.text-sm {
+        margin: 0 !important;
+        color: #4b5563 !important;
     }
-    
-    .pagination .justify-between {
-        justify-content: space-between;
+
+    /* Style the page number buttons/links */
+    .pagination .inline-flex.shadow-sm {
+        display: inline-flex !important;
+        border-radius: 0.375rem !important;
+        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05) !important;
+        overflow: hidden !important;
+        border: none !important;
     }
-    
-    .pagination .gap-1 {
-        gap: 0.25rem;
+
+    .pagination a, 
+    .pagination .inline-flex.shadow-sm > span > span,
+    .pagination .inline-flex.shadow-sm > a,
+    .pagination [aria-current="page"] > span,
+    .pagination [aria-disabled="true"] > span {
+        position: relative !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        padding: 0.5rem 0.75rem !important;
+        font-size: 0.875rem !important;
+        font-weight: 500 !important;
+        line-height: 1.25rem !important;
+        text-decoration: none !important;
+        background-color: #fff !important;
+        border: 1px solid #d1d5db !important;
+        margin-left: -1px !important;
+        color: #374151 !important;
+        transition: background-color 0.2s !important;
     }
-    
-    .pagination .-mt-px {
-        margin-top: -1px;
-    }
-    
-    .pagination .relative {
-        position: relative;
-    }
-    
-    .pagination .inline-flex {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        min-width: 2.5rem;
-        height: 2.5rem;
-    }
-    
-    .pagination .items-center {
-        align-items: center;
-    }
-    
-    .pagination .px-4 {
-        padding-left: 1rem;
-        padding-right: 1rem;
-    }
-    
-    .pagination .py-2 {
-        padding-top: 0.5rem;
-        padding-bottom: 0.5rem;
-    }
-    
-    .pagination .border {
-        border-width: 1px;
-        border-style: solid;
-    }
-    
-    .pagination .border-gray-300 {
-        border-color: #d1d5db;
-    }
-    
-    .pagination .bg-white {
-        background-color: #ffffff;
-    }
-    
-    .pagination .text-gray-500 {
-        color: #6b7280;
-    }
-    
-    .pagination .text-gray-700 {
-        color: #374151;
-    }
-    
-    .pagination .hover\:text-gray-500:hover {
-        color: #6b7280;
-    }
-    
-    .pagination .hover\:bg-gray-50:hover {
-        background-color: #f9fafb;
-    }
-    
-    .pagination .focus\:z-10:focus {
-        z-index: 10;
-    }
-    
-    .pagination .focus\:outline-none:focus {
-        outline: 2px solid transparent;
-        outline-offset: 2px;
-    }
-    
-    .pagination .focus\:ring-2:focus {
-        --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
-        --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color);
-        box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000);
-    }
-    
-    .pagination .focus\:ring-blue-500:focus {
-        --tw-ring-color: #3b82f6;
-    }
-    
-    .pagination .active\:bg-blue-50:active {
-        background-color: #eff6ff;
-    }
-    
-    .pagination .active\:text-blue-600:active {
-        color: #2563eb;
-    }
-    
-    /* Pagination link styles */
-    .pagination a,
-    .pagination span {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        min-width: 2.5rem;
-        height: 2.5rem;
-        padding: 0.25rem 0.75rem;
-        border: 1px solid #d1d5db;
-        background-color: #ffffff;
-        color: #374151;
-        font-size: 0.875rem;
-        font-weight: 500;
-        text-decoration: none;
-        border-radius: 0.375rem;
-        transition: all 0.2s;
-    }
-    
+
     .pagination a:hover {
-        background-color: #f9fafb;
-        border-color: #9ca3af;
-        color: #1f2937;
+        background-color: #f9fafb !important;
     }
-    
-    .pagination .active span {
-        background-color: #3b82f6;
-        border-color: #3b82f6;
-        color: #ffffff;
-        font-weight: 600;
+
+    .pagination [aria-current="page"] > span {
+        background-color: #3b82f6 !important;
+        color: white !important;
+        border-color: #3b82f6 !important;
+        z-index: 10 !important;
     }
-    
-    .pagination .disabled span {
-        background-color: #f3f4f6;
-        border-color: #e5e7eb;
-        color: #9ca3af;
-        cursor: not-allowed;
+
+    .pagination [aria-disabled="true"] > span {
+        color: #9ca3af !important;
+        cursor: not-allowed !important;
+        background-color: #f3f4f6 !important;
     }
-    
-    /* Dark mode pagination styles */
-    .dark-mode .pagination .border-gray-300 {
-        border-color: #4b5563;
+
+    /* Fix oversized SVG icons */
+    .pagination svg {
+        width: 1.25rem !important;
+        height: 1.25rem !important;
+        display: inline-block !important;
+        vertical-align: middle !important;
     }
-    
-    .dark-mode .pagination .bg-white {
-        background-color: #1f2937;
+
+    /* Mobile buttons style */
+    .pagination .sm\:hidden a, 
+    .pagination .sm\:hidden span {
+        border-radius: 0.375rem !important;
+        margin: 0 !important;
     }
-    
-    .dark-mode .pagination .text-gray-500 {
-        color: #9ca3af;
-    }
-    
-    .dark-mode .pagination .text-gray-700 {
-        color: #d1d5db;
-    }
-    
-    .dark-mode .pagination .hover\:text-gray-500:hover {
-        color: #9ca3af;
-    }
-    
-    .dark-mode .pagination .hover\:bg-gray-50:hover {
-        background-color: #374151;
-    }
-    
-    .dark-mode .pagination .active\:bg-blue-50:active {
-        background-color: #1e3a8a;
-    }
-    
-    .dark-mode .pagination .active\:text-blue-600:active {
-        color: #60a5fa;
-    }
-    
+
+    /* Dark mode support */
     .dark-mode .pagination a,
-    .dark-mode .pagination span {
-        border-color: #4b5563;
-        background-color: #1f2937;
-        color: #d1d5db;
+    .dark-mode .pagination [aria-disabled="true"] > span {
+        background-color: #1f2937 !important;
+        border-color: #374151 !important;
+        color: #d1d5db !important;
     }
-    
+
     .dark-mode .pagination a:hover {
-        background-color: #374151;
-        border-color: #6b7280;
-        color: #f3f4f6;
+        background-color: #374151 !important;
     }
-    
-    .dark-mode .pagination .active span {
-        background-color: #3b82f6;
-        border-color: #3b82f6;
-        color: #ffffff;
+
+    .dark-mode .pagination p.text-sm {
+        color: #9ca3af !important;
     }
-    
-    .dark-mode .pagination .disabled span {
-        background-color: #374151;
-        border-color: #4b5563;
-        color: #6b7280;
+
+    .dark-mode .pagination [aria-current="page"] > span {
+        background-color: #3b82f6 !important;
+        color: white !important;
     }
 </style>
 

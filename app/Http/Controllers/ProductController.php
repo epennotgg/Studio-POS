@@ -85,7 +85,7 @@ class ProductController extends Controller
             $query->latest();
         }
         
-        $products = $query->paginate(20);
+        $products = $query->paginate(20)->withQueryString();
         $categories = Category::all();
         
         return view('products.index', compact('products', 'categories'));

@@ -195,7 +195,7 @@ class TransactionController extends Controller
             $query->where('customer_type', $request->customer_type);
         }
         
-        $transactions = $query->latest()->paginate(20);
+        $transactions = $query->latest()->paginate(20)->withQueryString();
         
         // Untuk perhitungan revenue, kita perlu menghitung total dari transaksi yang tidak dibatalkan
         // Jika status "pending", input DP sebagai pemasukan
